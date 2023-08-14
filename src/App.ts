@@ -38,10 +38,14 @@ export abstract class App {
     this.initWindowResizer();
   }
 
-  private animationLoop() {
+  abstract update(time: number): void;
+
+  private animationLoop(time: number) {
     if (this.isPlaying) {
       this.stats.begin();
 
+      this.update(time);
+      this.oControls.update();
       this.renderer.render(this.scene, this.camera);
 
       this.stats.end();
