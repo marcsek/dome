@@ -38,6 +38,8 @@ export class PropsGenerator extends WorldGenerator {
     let modelToClone;
 
     switch (true) {
+      case height < World.MAX_HEIGHT * 0.15:
+        break;
       case height < World.MAX_HEIGHT * 0.25:
         if (random < 0.075) {
           modelToClone = this.models.get('tree');

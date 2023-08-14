@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ModelGroup } from './ModelGroup';
 import { clamp, oscilate, wrap } from './utils/Math';
+import { World } from './World';
 
 export class Solar {
   private skyColor: THREE.Color;
@@ -25,18 +26,19 @@ export class Solar {
       emissiveIntensity: 10,
     });
     const sunMesh = new THREE.Mesh(sunGeo, sunMat);
-    const sunLight = new THREE.PointLight(this.SUN_COLOR, 2, 1000, 0.2);
+    const sunLight = new THREE.PointLight(this.SUN_COLOR, 5, 1000, 0.2);
     sunLight.add(sunMesh);
     //sunLight.position.set(10, 20, 10);
-    sunLight.position.set(25, 0, 0);
+    sunLight.position.set(World.MESH_SIZE / Math.sqrt(2) + 3, 0, 0);
     sunLight.castShadow = true;
 
     const moon = await new ModelGroup().load('/public/models/moon.gltf');
     moon.setMaterial(prev => new THREE.MeshPhysicalMaterial({ ...prev, toneMapped: false, emissiveIntensity: 1.5 }));
 
-    const moonLight = new THREE.PointLight(this.MOON_COLOR, 0.1, 1000, 0.2);
+    const moonLight = new THREE.PointLight(this.MOON_COLOR, 1.5, 1000, 0.2);
     moonLight.add(moon.model);
-    moonLight.position.set(-25, 0, 0);
+    //moonLight.position.set(10, 20, 10);
+    moonLight.position.set(-World.MESH_SIZE / Math.sqrt(2) - 3, 0, 0);
     moonLight.castShadow = true;
 
     this.centerPoint.add(sunLight, moonLight);
@@ -55,6 +57,7 @@ export class Solar {
     const increment = speed * (time / 10000);
 
     this.centerPoint.rotation.z = Math.PI;
+    //this.centerPoint.rotation.z = -Math.PI / 3;
     this.skyColor = this.NIGHT_COLOR;
 
     this.centerPoint.rotation.z = wrap(increment / 4, 0, 1) * Math.PI * 2;

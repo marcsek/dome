@@ -17,6 +17,7 @@ export abstract class App {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     parentElement.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
