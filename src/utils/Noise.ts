@@ -5,7 +5,7 @@ export class Noise {
   private static readonly PERLIN_ZWRAP = 1 << this.PERLIN_ZWRAPB;
   private static readonly PERLIN_SIZE = 4095;
 
-  private static perlin_octaves = 4;
+  private static perlin_octaves = 8;
   private static perlin_amp_falloff = 0.5;
 
   private static perlin: number[] | undefined;

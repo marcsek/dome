@@ -14,6 +14,8 @@ export class TileGenerator extends WorldGenerator {
   }
 
   async init() {
+    const start = performance.now();
+
     const textureLoader = new THREE.TextureLoader();
 
     const stone = await textureLoader.loadAsync('/public/textures/stone.jpg');
@@ -47,6 +49,8 @@ export class TileGenerator extends WorldGenerator {
       mesh.receiveShadow = true;
     });
 
+    const end = performance.now();
+    console.log(`Tile initialization took ${end - start} ms`);
     return this;
   }
 
@@ -70,6 +74,10 @@ export class TileGenerator extends WorldGenerator {
       default:
         this.meshBuilder.addGeometry('stone', newHex);
     }
+  }
+
+  reset() {
+    this.meshBuilder.resetGeometry();
   }
 
   getGenerated(): THREE.Group {

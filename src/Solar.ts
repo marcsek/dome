@@ -6,6 +6,8 @@ import { World } from './World';
 export class Solar {
   private skyColor: THREE.Color;
   private centerPoint: THREE.Object3D;
+  private sunLight: THREE.PointLight;
+  private moonLight: THREE.PointLight;
 
   private readonly DAY_COLOR = new THREE.Color('#d1b26b');
   private readonly NIGHT_COLOR = new THREE.Color('#101010');
@@ -14,10 +16,14 @@ export class Solar {
 
   constructor() {
     this.centerPoint = new THREE.Object3D();
+    this.sunLight = new THREE.PointLight();
+    this.moonLight = new THREE.PointLight();
     this.skyColor = this.DAY_COLOR;
   }
 
   async init() {
+    const start = performance.now();
+
     const sunGeo = new THREE.SphereGeometry(1, 20, 20);
     const sunMat = new THREE.MeshStandardMaterial({
       toneMapped: false,
@@ -41,7 +47,12 @@ export class Solar {
     moonLight.position.set(-World.MESH_SIZE / Math.sqrt(2) - 3, 0, 0);
     moonLight.castShadow = true;
 
+    this.sunLight = sunLight;
+    this.moonLight = moonLight;
     this.centerPoint.add(sunLight, moonLight);
+
+    const end = performance.now();
+    console.log(`Solar initialization took ${end - start} ms`);
   }
 
   getObjectToRender() {
@@ -60,6 +71,8 @@ export class Solar {
     //this.centerPoint.rotation.z = -Math.PI / 3;
     this.skyColor = this.NIGHT_COLOR;
 
+    this.moonLight.intensity = clamp(0, 1, oscilate(increment - 1, -1, 1)) * 1.5;
+    this.sunLight.intensity = clamp(0, 1, oscilate(increment + 1, -1, 1)) * 5;
     this.centerPoint.rotation.z = wrap(increment / 4, 0, 1) * Math.PI * 2;
     this.skyColor = new THREE.Color().lerpColors(this.NIGHT_COLOR, this.DAY_COLOR, clamp(0, 1, oscilate(increment + 1, -1, 1)));
   }

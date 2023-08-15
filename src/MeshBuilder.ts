@@ -30,6 +30,12 @@ export class MeshBuilder {
     });
   }
 
+  resetGeometry() {
+    [...this.meshes.values()].forEach(value => {
+      value.geometry = new THREE.BoxGeometry(0, 0, 0);
+    });
+  }
+
   getMeshes() {
     return this.meshes.values();
   }

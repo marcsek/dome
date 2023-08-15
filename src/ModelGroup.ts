@@ -1,14 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { CustomMesh } from './CustomMesh';
 
-export class ModelGroup {
-  model: THREE.Group;
-
+export class ModelGroup extends CustomMesh {
   private readonly DEFAULT_MATERIAL = THREE.MeshPhysicalMaterial;
-
-  constructor() {
-    this.model = new THREE.Group();
-  }
 
   async load(url: string) {
     const loader = new GLTFLoader();
@@ -18,26 +13,12 @@ export class ModelGroup {
     return this;
   }
 
-  modifyMeshAtt(callback: (mesh: THREE.Mesh) => void) {
-    this.model.traverse(obj => {
-      if (obj instanceof THREE.Mesh) callback(obj);
-    });
-  }
-
-  replaceMaterial() {
+  private replaceMaterial() {
     this.model.children.forEach(child => {
       if ('material' in child && typeof child.material === 'object') {
         child.material = new this.DEFAULT_MATERIAL({
           ...child.material,
         });
-      }
-    });
-  }
-
-  setMaterial(callback: (previous: THREE.MaterialParameters) => void) {
-    this.model.children.forEach(child => {
-      if ('material' in child && typeof child.material === 'object') {
-        child.material = callback(child.material as THREE.MaterialParameters);
       }
     });
   }

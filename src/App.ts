@@ -1,6 +1,19 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import Stats from 'stats.js';
+let start = 0;
+let firstRender = true;
+
+const log = () => {
+  if (firstRender) {
+    const end = performance.now();
+    console.log(`Time to first render ${end - start} ms`);
+  }
+  firstRender = false;
+};
 
 export abstract class App {
   protected renderer: THREE.WebGLRenderer;
@@ -9,9 +22,11 @@ export abstract class App {
   protected oControls: OrbitControls;
   protected pmrem: THREE.PMREMGenerator;
   protected stats: Stats;
+  protected effectComposer: EffectComposer;
   isPlaying = false;
 
   constructor(parentElement: HTMLElement) {
+    start = performance.now();
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
@@ -31,6 +46,9 @@ export abstract class App {
 
     this.pmrem = new THREE.PMREMGenerator(this.renderer);
 
+    this.effectComposer = new EffectComposer(this.renderer);
+    this.effectComposer.addPass(new RenderPass(this.scene, this.camera));
+
     this.stats = new Stats();
     parentElement.appendChild(this.stats.dom);
 
@@ -47,7 +65,9 @@ export abstract class App {
 
       this.update(time);
       this.oControls.update();
-      this.renderer.render(this.scene, this.camera);
+      //      console.log('render start');
+      this.effectComposer.render();
+      log();
 
       this.stats.end();
     }
