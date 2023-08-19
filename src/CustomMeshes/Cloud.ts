@@ -5,6 +5,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 export class Cloud extends CustomMesh {
   constructor(height: number) {
     super();
+
     const rightGeo = new THREE.SphereGeometry(0.7, 6, 6);
     const midGeo = new THREE.SphereGeometry(1, 6, 6);
     const leftGeo = new THREE.SphereGeometry(0.8, 6, 6);
@@ -21,6 +22,8 @@ export class Cloud extends CustomMesh {
 
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+
+    mesh.name = 'cloud';
 
     this.model.add(mesh);
   }

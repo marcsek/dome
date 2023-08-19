@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export abstract class CustomMesh {
-  model: THREE.Group;
+  protected model: THREE.Group;
 
   constructor() {
     this.model = new THREE.Group();
@@ -18,6 +18,22 @@ export abstract class CustomMesh {
       if ('material' in child && typeof child.material === 'object') {
         child.material = callback(child.material as THREE.MaterialParameters);
       }
+    });
+  }
+
+  getGeo() {
+    return this.model.children.map(child => {
+      return (child as THREE.Mesh).geometry;
+    });
+  }
+  getMat() {
+    return this.model.children.map(child => {
+      return (child as THREE.Mesh).material;
+    });
+  }
+  getMesh() {
+    return this.model.children.map(child => {
+      return child as THREE.Mesh;
     });
   }
 }

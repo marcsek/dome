@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ThreePerf } from 'three-perf';
+
 import Stats from 'stats.js';
 let start = 0;
 let firstRender = true;
@@ -22,6 +23,7 @@ export abstract class App {
   protected oControls: OrbitControls;
   protected pmrem: THREE.PMREMGenerator;
   protected stats: Stats;
+  protected perfStat: ThreePerf;
   protected effectComposer: EffectComposer;
   isPlaying = false;
 
@@ -50,7 +52,9 @@ export abstract class App {
     this.effectComposer.addPass(new RenderPass(this.scene, this.camera));
 
     this.stats = new Stats();
-    parentElement.appendChild(this.stats.dom);
+    //    parentElement.appendChild(this.stats.dom);
+
+    this.perfStat = new ThreePerf({ anchorX: 'left', anchorY: 'top', renderer: this.renderer, domElement: parentElement });
 
     this.renderer.setAnimationLoop(this.animationLoop.bind(this));
 
@@ -61,15 +65,15 @@ export abstract class App {
 
   private animationLoop(time: number) {
     if (this.isPlaying) {
-      this.stats.begin();
+      this.perfStat.begin();
 
       this.update(time);
       this.oControls.update();
-      //      console.log('render start');
+
       this.effectComposer.render();
       log();
 
-      this.stats.end();
+      this.perfStat.end();
     }
   }
 
@@ -78,6 +82,7 @@ export abstract class App {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.effectComposer.setSize(window.innerWidth, window.innerHeight);
     });
   }
 }

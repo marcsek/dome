@@ -2,23 +2,25 @@ import * as THREE from 'three';
 import { Noise } from './utils/Noise';
 import { WorldGenerator } from './WorldGenerator';
 import { Water } from './CustomMeshes/Water';
+import { CompileObservable } from './CompileObservable';
 
 export class World {
   static readonly MESH_SIZE = 32;
   static readonly MAX_HEIGHT = 10 ** 1.25;
 
   world: THREE.Group;
-  worker: Worker;
+  compileObs: CompileObservable;
 
   constructor() {
     this.world = new THREE.Group();
-    this.worker = new Worker('/src/workerScripts/worldLoader.ts', { type: 'module' });
+    this.compileObs = CompileObservable.getInstance();
   }
 
   generateWorld(generators: WorldGenerator[]) {
     const start = performance.now();
 
-    //this.worker.postMessage('cau');
+    const water = new Water().getMesh();
+    this.compileObs.precompile(water);
 
     for (let x = -World.MESH_SIZE / 2; x < World.MESH_SIZE / 2; x++) {
       for (let y = -World.MESH_SIZE / 2; y < World.MESH_SIZE / 2; y++) {
@@ -31,10 +33,9 @@ export class World {
         generators.forEach(gen => gen.generateOnPos(new THREE.Vector3(position.x, height, position.y)));
       }
     }
-    const water = new Water().model;
-    this.world.add(water);
 
     this.world.add(...generators.map(gen => gen.getGenerated()));
+    console.log(this.world);
     const end = performance.now();
     console.log(`World generation took ${end - start} ms`);
   }

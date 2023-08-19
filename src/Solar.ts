@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { ModelGroup } from './ModelGroup';
 import { clamp, oscilate, wrap } from './utils/Math';
 import { World } from './World';
+const moonUrl = new URL('/public/models/moon.gltf', import.meta.url).href;
 
 export class Solar {
   private skyColor: THREE.Color;
-  private centerPoint: THREE.Object3D;
+  private centerPoint: THREE.Group;
   private sunLight: THREE.PointLight;
   private moonLight: THREE.PointLight;
 
@@ -15,7 +16,7 @@ export class Solar {
   private readonly MOON_COLOR = new THREE.Color('#f5e38a');
 
   constructor() {
-    this.centerPoint = new THREE.Object3D();
+    this.centerPoint = new THREE.Group();
     this.sunLight = new THREE.PointLight();
     this.moonLight = new THREE.PointLight();
     this.skyColor = this.DAY_COLOR;
@@ -24,7 +25,7 @@ export class Solar {
   async init() {
     const start = performance.now();
 
-    const sunGeo = new THREE.SphereGeometry(1, 20, 20);
+    const sunGeo = new THREE.SphereGeometry(1, 12, 12);
     const sunMat = new THREE.MeshStandardMaterial({
       toneMapped: false,
       emissive: this.SUN_COLOR,
@@ -38,11 +39,11 @@ export class Solar {
     sunLight.position.set(World.MESH_SIZE / Math.sqrt(2) + 3, 0, 0);
     sunLight.castShadow = true;
 
-    const moon = await new ModelGroup().load('/public/models/moon.gltf');
+    const moon = await new ModelGroup().load(moonUrl);
     moon.setMaterial(prev => new THREE.MeshPhysicalMaterial({ ...prev, toneMapped: false, emissiveIntensity: 1.5 }));
 
     const moonLight = new THREE.PointLight(this.MOON_COLOR, 1.5, 1000, 0.2);
-    moonLight.add(moon.model);
+    moonLight.add(...moon.getMesh());
     //moonLight.position.set(10, 20, 10);
     moonLight.position.set(-World.MESH_SIZE / Math.sqrt(2) - 3, 0, 0);
     moonLight.castShadow = true;
