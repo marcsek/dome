@@ -3,9 +3,10 @@ import { MeshBuilder } from '../MeshBuilder';
 import { WorldGenerator } from '../WorldGenerator';
 import { World } from '../World';
 import { Dome } from '../Dome';
+
 const stoneUrl = new URL('/public/textures/stone.jpg', import.meta.url).href;
 const sandUrl = new URL('/public/textures/sand.jpg', import.meta.url).href;
-const grassUrl = new URL('/public/textures/grass.jpg', import.meta.url).href;
+const grassUrl = new URL('/public/textures/grass_new.jpg', import.meta.url).href;
 const dirt_darkUrl = new URL('/public/textures/dirt_dark.jpg', import.meta.url).href;
 const dirt_lightUrl = new URL('/public/textures/dirt_light.jpg', import.meta.url).href;
 
@@ -23,11 +24,13 @@ export class TileGenerator extends WorldGenerator {
 
     const textureLoader = new THREE.TextureLoader();
 
-    const stone = await textureLoader.loadAsync(stoneUrl);
-    const sand = await textureLoader.loadAsync(sandUrl);
-    const grass = await textureLoader.loadAsync(grassUrl);
-    const dirt_dark = await textureLoader.loadAsync(dirt_darkUrl);
-    const dirt_light = await textureLoader.loadAsync(dirt_lightUrl);
+    const textures = await Promise.all([stoneUrl, sandUrl, grassUrl, dirt_darkUrl, dirt_lightUrl].map(url => textureLoader.loadAsync(url)));
+
+    const stone = textures[0];
+    const sand = textures[1];
+    const grass = textures[2];
+    const dirt_dark = textures[3];
+    const dirt_light = textures[4];
 
     stone.colorSpace = THREE.SRGBColorSpace;
     sand.colorSpace = THREE.SRGBColorSpace;

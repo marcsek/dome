@@ -9,6 +9,7 @@ import { WorldGenerator } from './WorldGenerator';
 import { Noise } from './utils/Noise';
 import { CompileObservable } from './CompileObservable';
 import { PropsGenerator } from './WorldGenerators/PropsGenerator';
+
 const imageUrl = new URL('/public/env/sm_envmap.hdr', import.meta.url).href;
 
 export class Dome extends App {
@@ -45,9 +46,10 @@ export class Dome extends App {
       this.renderer.compile(this.scene, this.camera);
     });
 
-    this.generators = await Promise.all(this.GENERATOR_PIPE.map(async gen => await new gen().init()));
+    const elements = await Promise.all([...this.GENERATOR_PIPE.map(async gen => await new gen().init()), this.solar.init()]);
 
-    await this.solar.init();
+    this.generators = elements.slice(0, 2) as WorldGenerator[];
+
     this.compileObservable.precompile(this.solar.getObjectToRender());
 
     this.world.generateWorld(this.generators);

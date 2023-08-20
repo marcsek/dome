@@ -7,9 +7,11 @@ import { Rock } from '../CustomMeshes/Rock';
 import { clamp } from '../utils/Math';
 import { Cloud } from '../CustomMeshes/Cloud';
 import { MeshBuilder } from '../MeshBuilder';
+
 const bushUrl = new URL('/public/models/bush.gltf', import.meta.url).href;
 const treeUrl = new URL('/public/models/tree.gltf', import.meta.url).href;
 const tree_baseUrl = new URL('/public/models/tree_base.gltf', import.meta.url).href;
+const cloudUrl = new URL('/public/models/cloud.gltf', import.meta.url).href;
 
 export class PropsGenerator extends WorldGenerator {
   meshBuilder: MeshBuilder;
@@ -17,6 +19,7 @@ export class PropsGenerator extends WorldGenerator {
   bush_paradigm: ModelGroup;
   tree_paradigm: ModelGroup;
   tree_base_paradigm: ModelGroup;
+  cloud_paradigm: ModelGroup;
 
   constructor() {
     super();
@@ -26,6 +29,7 @@ export class PropsGenerator extends WorldGenerator {
     this.bush_paradigm = new ModelGroup();
     this.tree_paradigm = new ModelGroup();
     this.tree_base_paradigm = new ModelGroup();
+    this.cloud_paradigm = new ModelGroup();
   }
 
   async init() {
@@ -33,20 +37,28 @@ export class PropsGenerator extends WorldGenerator {
 
     const rock = new Rock(0);
     const cloud = new Cloud(0);
-    this.bush_paradigm = await new ModelGroup().load(bushUrl);
+
+    const models = await Promise.all([bushUrl, treeUrl, tree_baseUrl, cloudUrl].map(url => new ModelGroup().load(url)));
+
+    this.bush_paradigm = models[0];
     this.bush_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, envMapIntensity: Dome.ENV_INTENSITY }));
+    this.meshBuilder.setMesh('bush', this.bush_paradigm.getMesh(), true);
 
-    this.tree_paradigm = await new ModelGroup().load(treeUrl);
+    this.tree_paradigm = models[1];
     this.tree_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, envMapIntensity: Dome.ENV_INTENSITY }));
+    this.meshBuilder.setMesh('tree', this.tree_paradigm.getMesh(), true);
 
-    this.tree_base_paradigm = await new ModelGroup().load(tree_baseUrl);
+    this.tree_base_paradigm = models[2];
     this.tree_base_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, envMapIntensity: Dome.ENV_INTENSITY }));
+    this.meshBuilder.setMesh('tree_base', this.tree_base_paradigm.getMesh(), true);
+
+    console.log(models[3]);
+    this.cloud_paradigm = models[3];
+    this.cloud_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, flatShading: true }));
+    this.meshBuilder.setMesh('cloud', this.cloud_paradigm.getMesh(), true);
 
     this.meshBuilder.setMesh('rock', rock.getMesh(), true);
     this.meshBuilder.setMesh('cloud', cloud.getMesh(), true);
-    this.meshBuilder.setMesh('bush', this.bush_paradigm.getMesh(), true);
-    this.meshBuilder.setMesh('tree', this.tree_paradigm.getMesh(), true);
-    this.meshBuilder.setMesh('tree_base', this.tree_base_paradigm.getMesh(), true);
 
     this.meshBuilder.updateGlobally(mesh => {
       mesh.castShadow = true;
@@ -62,8 +74,12 @@ export class PropsGenerator extends WorldGenerator {
     const height = position.y;
 
     if (random < 0.005) {
-      const cloudGeo = new Cloud(16).getGeo();
-      cloudGeo.forEach(geo => geo.translate(position.x, height, position.z));
+      //      const cloudGeo = new Cloud(16).getGeo();
+      //      cloudGeo.forEach(geo => geo.translate(position.x, height, position.z));
+      //      this.meshBuilder.addGeometry('cloud', cloudGeo);
+      const cloudGeo = this.cloud_paradigm.getGeo().map(g => g.clone());
+      cloudGeo.forEach(g => g.rotateY(Math.random() * Math.PI));
+      this.configureGeo(cloudGeo, new THREE.Vector3(position.x, position.y + 16, position.z), 0.6);
       this.meshBuilder.addGeometry('cloud', cloudGeo);
     }
 
@@ -80,7 +96,6 @@ export class PropsGenerator extends WorldGenerator {
         if (random < 0.075) {
           const treeGeo = this.tree_paradigm.getGeo().map(g => g.clone());
           this.configureGeo(treeGeo, position);
-
           this.meshBuilder.addGeometry('tree', treeGeo);
         } else if (random < 0.15) {
           const treeBaseGeo = this.tree_base_paradigm.getGeo().map(g => g.clone());
@@ -106,8 +121,8 @@ export class PropsGenerator extends WorldGenerator {
     this.meshBuilder.resetGeometry();
   }
 
-  private configureGeo(geo: THREE.BufferGeometry[], position: THREE.Vector3) {
-    geo.forEach(g => g.scale(0.35, 0.35, 0.35));
+  private configureGeo(geo: THREE.BufferGeometry[], position: THREE.Vector3, scale: number = 0.35) {
+    geo.forEach(g => g.scale(scale, scale, scale));
     geo.forEach(g => g.translate(position.x, position.y, position.z));
   }
 
