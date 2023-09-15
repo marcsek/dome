@@ -7,6 +7,7 @@ import { Rock } from '../CustomMeshes/Rock';
 import { clamp } from '../utils/Math';
 import { Cloud } from '../CustomMeshes/Cloud';
 import { MeshBuilder } from '../MeshBuilder';
+import { Noise } from '../utils/Noise';
 
 const bushUrl = new URL('/public/models/bush.gltf', import.meta.url).href;
 const treeUrl = new URL('/public/models/tree.gltf', import.meta.url).href;
@@ -21,6 +22,8 @@ export class PropsGenerator extends WorldGenerator {
   tree_base_paradigm: ModelGroup;
   cloud_paradigm: ModelGroup;
 
+  lastCloudPos: THREE.Vector3;
+
   constructor() {
     super();
 
@@ -30,6 +33,8 @@ export class PropsGenerator extends WorldGenerator {
     this.tree_paradigm = new ModelGroup();
     this.tree_base_paradigm = new ModelGroup();
     this.cloud_paradigm = new ModelGroup();
+
+    this.lastCloudPos = new THREE.Vector3();
   }
 
   async init() {
@@ -52,7 +57,6 @@ export class PropsGenerator extends WorldGenerator {
     this.tree_base_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, envMapIntensity: Dome.ENV_INTENSITY }));
     this.meshBuilder.setMesh('tree_base', this.tree_base_paradigm.getMesh(), true);
 
-    console.log(models[3]);
     this.cloud_paradigm = models[3];
     this.cloud_paradigm.setMaterial(mat => new THREE.MeshPhysicalMaterial({ ...mat, flatShading: true }));
     this.meshBuilder.setMesh('cloud', this.cloud_paradigm.getMesh(), true);
@@ -73,14 +77,12 @@ export class PropsGenerator extends WorldGenerator {
     const random = Math.random();
     const height = position.y;
 
-    if (random < 0.005) {
-      //      const cloudGeo = new Cloud(16).getGeo();
-      //      cloudGeo.forEach(geo => geo.translate(position.x, height, position.z));
-      //      this.meshBuilder.addGeometry('cloud', cloudGeo);
+    if (Noise.perlinNoise((position.x + 50) * 100, (position.z + 50) * 100) > 0.825) {
       const cloudGeo = this.cloud_paradigm.getGeo().map(g => g.clone());
       cloudGeo.forEach(g => g.rotateY(Math.random() * Math.PI));
-      this.configureGeo(cloudGeo, new THREE.Vector3(position.x, position.y + 16, position.z), 0.6);
+      this.configureGeo(cloudGeo, new THREE.Vector3(position.x, position.y / 2 + 20, position.z), Math.random() * 0.3 + 0.4);
       this.meshBuilder.addGeometry('cloud', cloudGeo);
+      this.lastCloudPos = position;
     }
 
     switch (true) {

@@ -52,6 +52,7 @@ export class MeshBuilder {
     const values = [...this.meshes.values()];
 
     for (const row of values) for (const e of row) res.push(e);
+
     return res;
   }
 }

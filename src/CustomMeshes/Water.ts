@@ -30,6 +30,7 @@ export class Water extends CustomMesh {
       metalness: 0.025,
       metalnessMap: this.waterMap,
       roughnessMap: this.waterMap,
+      depthWrite: false,
     });
 
     const mesh = new THREE.Mesh(waterGeo, waterMat);
