@@ -1,7 +1,11 @@
 import { Dome } from './Dome';
+import { createApp } from 'vue';
+import VueOverlay from './vue-overlay/App.vue';
 
 (async () => {
   const generateButton: HTMLButtonElement = document.getElementById('generate') as HTMLButtonElement;
+
+  createApp(VueOverlay).mount('#vue-overlay');
 
   const start = performance.now();
 
