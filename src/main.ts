@@ -1,10 +1,9 @@
 import { Dome } from './Dome';
 import { createApp } from 'vue';
 import VueOverlay from './vue-overlay/App.vue';
+import { AppController } from './AppController';
 
 (async () => {
-  const generateButton: HTMLButtonElement = document.getElementById('generate') as HTMLButtonElement;
-
   createApp(VueOverlay).mount('#vue-overlay');
 
   const start = performance.now();
@@ -12,7 +11,7 @@ import VueOverlay from './vue-overlay/App.vue';
   const app = new Dome(document.body);
   await app.setup();
 
-  generateButton.onclick = () => app.regenerateWorld();
+  AppController.on('generate', () => app.regenerateWorld());
 
   const end = performance.now();
   console.log(`setup done in ${end - start} ms`);

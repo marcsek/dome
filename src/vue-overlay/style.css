@@ -1,0 +1,13 @@
+#vue-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#wrapper {
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  background-color: burlywood;
+}

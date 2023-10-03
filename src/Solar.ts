@@ -2,11 +2,14 @@ import * as THREE from 'three';
 import { ModelGroup } from './ModelGroup';
 import { clamp, oscilate, wrap } from './utils/Math';
 import { World } from './World';
+import { Dome } from './Dome';
 const moonUrl = new URL('/public/models/moon.gltf', import.meta.url).href;
+const baseUrl = new URL('/public/models/base.gltf', import.meta.url).href;
 
 export class Solar {
   private skyColor: THREE.Color;
   private centerPoint: THREE.Group;
+  private rotatePoint: THREE.Group;
   private sunLight: THREE.PointLight;
   private moonLight: THREE.PointLight;
 
@@ -17,6 +20,7 @@ export class Solar {
 
   constructor() {
     this.centerPoint = new THREE.Group();
+    this.rotatePoint = new THREE.Group();
     this.sunLight = new THREE.PointLight();
     this.moonLight = new THREE.PointLight();
     this.skyColor = this.DAY_COLOR;
@@ -40,7 +44,16 @@ export class Solar {
     sunLight.castShadow = true;
 
     const moon = await new ModelGroup().load(moonUrl);
+    console.log(moon);
     moon.setMaterial(prev => new THREE.MeshPhysicalMaterial({ ...prev, toneMapped: false, emissiveIntensity: 1.5 }));
+
+    const base = await new ModelGroup().load(baseUrl);
+    base.setMaterial(prev => new THREE.MeshPhysicalMaterial({ ...prev, envMapIntensity: Dome.ENV_INTENSITY }));
+    base.modifyMeshAtt(mesh => (mesh.receiveShadow = true));
+    base.getGeo().forEach(g => {
+      g.scale(26, 25, 26);
+      g.translate(0, 10, 0);
+    });
 
     const moonLight = new THREE.PointLight(this.MOON_COLOR, 1.5, 1000, 0.2);
     moonLight.add(...moon.getMesh());
@@ -50,7 +63,8 @@ export class Solar {
 
     this.sunLight = sunLight;
     this.moonLight = moonLight;
-    this.centerPoint.add(sunLight, moonLight);
+    this.rotatePoint.add(sunLight, moonLight);
+    this.centerPoint.add(this.rotatePoint, ...base.getMesh());
 
     const end = performance.now();
     console.log(`Solar initialization took ${end - start} ms`);
@@ -68,13 +82,13 @@ export class Solar {
     const speed = 4;
     const increment = speed * (time / 10000);
 
-    this.centerPoint.rotation.z = Math.PI;
+    this.rotatePoint.rotation.z = Math.PI;
     //this.centerPoint.rotation.z = -Math.PI / 3;
     this.skyColor = this.NIGHT_COLOR;
 
     this.moonLight.intensity = clamp(0, 1, oscilate(increment - 1, -1, 1)) * 1.5;
     this.sunLight.intensity = clamp(0, 1, oscilate(increment + 1, -1, 1)) * 5;
-    this.centerPoint.rotation.z = wrap(increment / 4, 0, 1) * Math.PI * 2;
+    this.rotatePoint.rotation.z = wrap(increment / 4, 0, 1) * Math.PI * 2;
     this.skyColor = new THREE.Color().lerpColors(this.NIGHT_COLOR, this.DAY_COLOR, clamp(0, 1, oscilate(increment + 1, -1, 1)));
   }
 }
