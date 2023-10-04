@@ -12,7 +12,7 @@ function publishEvent(name: string) {
   </aside>
   <div id="credits">
     <h2>Dome</h2>
-    <span>by <a href="https://marcek.dev">marcek</a></span>
+    <span>by <a href="https://marcek.dev" target="_blank">marcek</a></span>
   </div>
 </template>
 
