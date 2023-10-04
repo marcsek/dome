@@ -8,9 +8,12 @@ function publishEvent(name: string) {
 
 <template>
   <aside id="wrapper">
-    <h1>Dome</h1>
     <button @click="() => publishEvent('generate')">Generate land</button>
   </aside>
+  <div id="credits">
+    <h2>Dome</h2>
+    <span>by <a href="https://marcek.dev">marcek</a></span>
+  </div>
 </template>
 
 <style>

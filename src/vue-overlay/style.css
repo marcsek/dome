@@ -1,13 +1,85 @@
 #vue-overlay {
   position: absolute;
+
+  width: 100%;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+
+  --primary-color: #fff4da;
+  --border-color: #000000;
 }
 
 #wrapper {
   padding: 1rem 2rem;
   box-sizing: border-box;
   border-radius: 0.5rem;
-  background-color: burlywood;
+  border-bottom: 0px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+#credits {
+  position: fixed;
+  left: 100%;
+  top: 100%;
+  min-width: max-content;
+  transform: translate(-125%, -125%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  color: var(--primary-color);
+}
+
+#credits h2 {
+  font-size: 1.75rem;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+}
+
+#credits span {
+  font-size: 1rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+#credits span a {
+  color: inherit;
+}
+#credits span a:visited {
+  color: var(--primary-color);
+}
+
+#credits span a:active {
+  color: var(--primary-color);
+}
+
+#wrapper button {
+  background-color: var(--primary-color);
+  border: 2px solid var(--border-color);
+  border-radius: 30px;
+  box-shadow: var(--border-color) 4px 4px 0 0;
+  color: var(--text-color);
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 0 18px;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: all 0.075s ease-in-out;
+}
+
+#wrapper button:hover {
+  background-color: #fff;
+}
+
+#wrapper button:active {
+  box-shadow: #422800 2px 2px 0 0;
+  transform: translate(2px, 2px);
 }
